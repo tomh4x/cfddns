@@ -19,7 +19,9 @@ def getAddrFromPub(svcurl):
 if __name__ == '__main__':
     from cfconfig import *
     import sys
-
+    if len(sys.argv) != 2:
+        print('Import this as a module or run with:\n\nUsage: {} /path/to/config'.format( sys.argv[0]) )
+        sys.exit(0)
     conf = confLoad( sys.argv[1])
     ipservers = confGetIPServers(conf)
     for addr in ipservers:
