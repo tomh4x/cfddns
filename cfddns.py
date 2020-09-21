@@ -32,7 +32,7 @@ if __name__ == '__main__':
         new_rec = {'type':'A', \
                     'name':confGetHost(config), \
                     'content': getAddrFromPub( confGetIPServers(config)[randint(0,3)] ), \
-                    'ttl': 7200, \
+                    'ttl': 120, \
                     'proxied': False }
 
         current_rec = {'type':'A', 'name': confGetHost(config) }
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         recID = ddom.get_recordID( {'type':'A', \
                                     'name': confGetHost(config), \
                                     'content': getAddrFromPub( confGetIPServers(config)[randint(0,3)] ), \
-                                    'ttl': 7200 } )
+                                    'ttl': 120 } )
 
         if recID:
             # everything is all good.  re-iterate event loop
