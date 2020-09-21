@@ -19,6 +19,9 @@ def confGetZoneID(confstruct):
 def confGetHost( confstruct):
     return confstruct['ddns_host']
 
+def confGetTTL( confstruct):
+    return confstruct['ddns_ttl']
+
 def confGetLogPath( confstruct ):
     return confstruct['logfile']
 

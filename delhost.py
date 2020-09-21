@@ -20,7 +20,7 @@ if __name__ == '__main__':
     recID = ddom.get_recordID( {'type':'A', \
                                 'name': confGetHost(config), \
                                 'content': getAddrFromPub( confGetIPServers(config)[randint(0,3)] ), \
-                                'ttl': 120 } \
+                                'ttl': confGetTTL(config) } \
                                 )
     if recID:
         print('Got record ID: {}\nSending delete request...'.format(recID) )
@@ -32,7 +32,7 @@ if __name__ == '__main__':
             vrecID = ddom.get_recordID( {'type':'A', \
                                 'name': confGetHost(config), \
                                 'content': getAddrFromPub( confGetIPServers(config)[randint(0,3)] ), \
-                                'ttl': 120 } \
+                                'ttl': confGetTTL(config) } \
                                 )
             if not vrecID:
                 print('Record successfully deleted.')
