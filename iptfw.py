@@ -15,7 +15,7 @@ def loadConf( fn:str = ''):
     if fh:
         return json.loads( fh.read() )
     else:
-        print('Failed to load config file {}.  Bailing...'.format(fn) )
+        print('Failed to load config file {}.  Bailing...'.format(fn), file=sys.stderr )
         sys.exit(1)
     return None
 
@@ -76,39 +76,34 @@ if __name__ == '__main__':
 
                 if not searchrule:
                     #rule doesn't exist so make it
-                    print('Rule not found.  Creating rule for {}:{}/{}...'.format( v4_lookup( k ), config[k][proto][i], proto ) )
                     newrule = mkCFDDNSRule(k, proto, config[k][proto][i])
                     cfddns_chain.append_rule( newrule )
                     next
                 elif searchrule and (ruleidx >= 0):
                     # rule exists so check it
-                    print('Rule found.  Checking for update...')
+                    #print('Rule found.  Checking for update...')
                     ruleip = searchrule.src.split('/')[0]
                     curip = v4_lookup( k )
                     if ruleip != curip:
                         # rule is out of date so update it
-
-                        # ip:port/protocol eg. 10.1.1.1:80/tcp
-                        print('Resolution change {}:{}/{} -> {}:{}/{}.  Updating...'.format(  ruleip, config[k][proto][i], proto, curip, config[k][proto][i], proto ) )
-
                         newrule = mkCFDDNSRule(k, proto, config[k][proto][i] )
                         cfddns_chain.delete_rule( searchrule )
                         cfddns_chain.insert_rule( newrule, ruleidx )
                         next
                     elif ruleip == curip:
-                        print('Rule is current.  Skipping...')
+                        # nothing to do for this rule.  skip it.
                         next
 
                     #catchall below here
                     else:
-                        print('foobar.', file=sys.stderr)
+                        print('Sanity check failed on existing rule or index!', file=sys.stderr)
                         sys.exit(1)
                 else:
-                    print('foobar.', file=sys.stderr)
+                    print('Sanity check failed finding or creating a rule!', file=sys.stderr)
                     sys.exit(1)
 
     iptc.Table(iptc.Table.FILTER).commit()
-    print('Done.')
+    #print('Done.')
 
     sys.exit(0)
 
