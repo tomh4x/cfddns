@@ -4,14 +4,21 @@ import cloudflare, logging, os, sys, json
 from cfconfig import *
 from getAddr import getAddrFromPub
 from time import sleep
-from random import randint
+from signal import signal, SIGINT
 
+def sigint_handler(sig, frame):
+    logging.info('SIGINT Received: Exit.')
+    logging.shutdown()
+    sys.exit(0)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('Usage: {} /path/to/configFile'.format(sys.argv[0]) )
         sys.exit(0)
     
+    # catch ctrl-c
+    signal(SIGINT, sigint_handler)
+
     config = confLoad( sys.argv[1] )
     if not config:
         print('Failed to load config file.  Bailing out')
@@ -31,7 +38,7 @@ if __name__ == '__main__':
     while( True ):
         new_rec = {'type':'A', \
                     'name':confGetHost(config), \
-                    'content': getAddrFromPub( confGetIPServers(config)[randint(0,3)] ), \
+                    'content': getAddrFromPub( confGetIPServers(config) ), \
                     'ttl': confGetTTL(config), \
                     'proxied': False }
 
@@ -41,7 +48,7 @@ if __name__ == '__main__':
         # check for A record of the host assigned from config and current IP:
         recID = ddom.get_recordID( {'type':'A', \
                                     'name': confGetHost(config), \
-                                    'content': getAddrFromPub( confGetIPServers(config)[randint(0,3)] ), \
+                                    'content': getAddrFromPub( confGetIPServers(config) ), \
                                     'ttl': confGetTTL(config) } )
 
         if recID:

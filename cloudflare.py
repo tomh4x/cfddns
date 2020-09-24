@@ -44,7 +44,7 @@ class cfdns:
                 return False
 
             if credchk.status_code == 200  and credchk.json()['result']['status'] == 'active':
-                logging.info('chk_creds(): success.')
+                #logging.info('chk_creds(): success.')
                 return True
 
             #if credchk and not credchk.json()['result']['status'] == 'active':
@@ -120,7 +120,7 @@ class cfdns:
         ret = self.list_record( query)
         if ret:
             if len(ret.json()['result']) == 1:
-                logging.info('get_recordID(): {}'.format(query) )
+                logging.info('get_recordID(): {}'.format(ret.json()['result'][0]['id']) )
                 return ret.json()['result'][0]['id']
         else:
             logging.info('get_recordID(): failed.')

@@ -3,12 +3,19 @@
 import socket, fcntl, struct
 from requests import get
 from re import match
+from random import randint
 
 def getAddrFromIface(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa( fcntl.ioctl(s.fileno(),0x8915,struct.pack('256s', bytes(ifname[:15].encode('utf-8'))) )[20:24] )
 
-def getAddrFromPub(svcurl):
+def getAddrFromPub(url_list):
+    if isinstance(url_list, list):
+        svcurl = url_list[ randint(0, len(url_list)-1) ]
+    elif isinstance( url_list, str):
+        svcurl = url_list
+    else:
+        return False
     try:
         val = get(svcurl)
     except requests.exceptions.RequestException as e:
