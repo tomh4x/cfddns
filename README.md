@@ -16,10 +16,11 @@ Things you need:
     * zone ID of the domain
     * cloudflare API Token with DNS Edit privs for your zone
 * A URL you trust to correctly return your WAN IP.  Ideally, you control it.  Some public options:
-    * http://ifconfig.me/ip
+    * https://ifconfig.me/ip
     * https://api.ipify.org/?format=text
     * https://ip.seeip.org
-    * http://myexternalip.com/raw
+    * https://myexternalip.com/raw
+    * https://checkip.amazonaws.com
 
 
 ### Getting Started:
@@ -40,7 +41,7 @@ Things you need:
 A script to maintain a dynamic whitelist on a Linux system using an `iptables` library with rules written via a JSON config file (see `ipt_sample.conf` in the repo).  The user can configure a hostname and a set of ports for which to maintain access.  The script will set rules using the IP from the hostname's `A` record and destination ports and maintain the source IP address against the `A` record as it changes.  You can see why this pairs nicely with `cfddns.py`, but it could be used for dynamic whitelists regardless of your DNS provider of choice.  Considerations:
 * This must run as root
 * This script has no infinite/event loop, and is intended for use in root's crontab
-* This tool runs silently unless something goes wrong, in which case we print to STDERR.  An example cron entry is below:
+* This tool runs silently unless something goes wrong, in which case we print to STDERR.  An example cron entry to run it every 30 minutes is below:
     ```
     */30 * * * * /root/iptfw.py ipt_whitelist.conf > /dev/null
     ```
