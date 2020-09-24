@@ -32,16 +32,17 @@ Things you need:
 
     b) interface name doesn't matter (yet) as it's not fully implemented.
 4) ```chmod u+x ./cfddns.py```
-5) Please be mindful of hammering the API endpoints and/or ip checking servers when configuring the run interval.  I imagine a single check every 30 minutes is plenty-fast for most people.
-6) ### NOTE: the configuration file will store your API credentials.  Protect it as a private key or password.
+5) ```./cfddns.py /path/to/config``` (consider running in tmux or screen until [systemd functionality](https://github.com/tomh4x/cfddns/issues/1) working)
+6) Please be mindful of hammering the API endpoints and/or ip checking servers when configuring the run interval.  I imagine a single check every 30 minutes is plenty-fast for most people.
+7) ### NOTE: the configuration file will store your API credentials.  Protect it as a private key or password.
 
 ### iptfw.py
-A script to maintain a dynamic whitelist via a JSON config file (see `ipt_sample.conf` in the repo).  The user can configure a hostname and a set of ports for which to maintain access.  The script will set rules using the IP from the hostname's `A` record and destination ports and maintain the source IP address against the `A` record as it changes.  You can see why this pairs nicely with `cfddns.py`, but it could be used for dynamic whitelists regardless of your DNS provider of choice.  Considerations:
+A script to maintain a dynamic whitelist on a Linux system using an `iptables` library with rules written via a JSON config file (see `ipt_sample.conf` in the repo).  The user can configure a hostname and a set of ports for which to maintain access.  The script will set rules using the IP from the hostname's `A` record and destination ports and maintain the source IP address against the `A` record as it changes.  You can see why this pairs nicely with `cfddns.py`, but it could be used for dynamic whitelists regardless of your DNS provider of choice.  Considerations:
 * This must run as root
 * This script has no infinite/event loop, and is intended for use in root's crontab
-* A sample cron entry for this (runs every 30 minutes):
+* This tool runs silently unless something goes wrong, in which case we print to STDERR.  An example cron entry is below:
     ```
-    */30 * * * * /root/iptfw.py ipt_whitelist.conf > /dev/null 2>&1
+    */30 * * * * /root/iptfw.py ipt_whitelist.conf > /dev/null
     ```
 
 ### delhost.py
