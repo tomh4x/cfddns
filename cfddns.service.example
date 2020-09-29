@@ -1,0 +1,23 @@
+[Unit]
+Description=Starts CFDDNS as a service.
+After=syslog.target network-online.target
+Wants=network-online.target
+Documentation= https://github.com/tomh4x/cfddns/blob/master/README.md 
+
+[Service]
+Type=simple
+PrivateTmp=true
+WorkingDirectory=/opt/cfddns/
+ExecStart=/opt/cfddns/cfddns.py sample.conf
+Restart=always
+RestartSec=5
+CapabilityBoundingSet=
+LimitNPROC=10
+DeviceAllow=/dev/null rw
+DeviceAllow=/dev/net/tun rw
+ProtectSystem=true
+ProtectHome=true
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
