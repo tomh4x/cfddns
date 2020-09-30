@@ -1,7 +1,9 @@
-import requests, json, sys, logging, pdb
+import requests, json, sys
+import logging.handlers
+from syslog import syslog, LOG_INFO
 
 class cfdns:
-    def __init__(self, zoneID='', apiToken=''):
+    def __init__(self, zoneID: str ='', apiToken: str='' ):
         self.zoneID = zoneID
         self.apiToken = apiToken
         self.authHdr = { 'Authorization': '', 'Content-Type': 'application/json' }
@@ -11,18 +13,18 @@ class cfdns:
         if apiToken:
             self.authHdr = { 'Authorization': 'Bearer {}'.format( apiToken ), 'Content-Type': 'application/json' }
 
-        logging.info('cfdns instantiated successfully.')
+        syslog( LOG_INFO, 'cfdns instantiated successfully.')
         return
 
     def set_apiToken( self, APIToken ):
         self.apiToken = APIToken
         self.authHdr = { 'Authorization': 'Bearer {}'.format(APIToken), 'Content-Type': 'application/json' }
-        logging.info('API Token updated!' )
+        syslog( LOG_INFO, 'API Token updated!' )
         return
 
     def set_zoneID( self, zid ):
         self.zoneID = zid
-        logging.info('Zone ID updated!' )
+        syslog( LOG_INFO, 'Zone ID updated!' )
         return
 
     # Make sure keys from a given dict/query are all valid against master set
@@ -44,15 +46,15 @@ class cfdns:
                 return False
 
             if credchk.status_code == 200  and credchk.json()['result']['status'] == 'active':
-                #logging.info('chk_creds(): success.')
+                #syslog( LOG_INFO, 'chk_creds(): success.')
                 return True
 
             #if credchk and not credchk.json()['result']['status'] == 'active':
             else:
-                logging.info('chk_creds(): failed!')
+                syslog( LOG_INFO, 'chk_creds(): failed!')
                 #pdb.set_trace()
                 if credchk.status_code != 200:
-                    logging.info('Server Error Status Code: {}\n'.format( credchk.status_code ) )
+                    syslog( LOG_INFO, 'Server Error Status Code: {}\n'.format( credchk.status_code ) )
                     print( credchk.json(), file=sys.stderr )
 
         return False
@@ -72,7 +74,7 @@ class cfdns:
         # make sure no weird keys in the parameter by comparing 2 sets with isSubSet()
         #pdb.set_trace()
         if not self.ValidateQueryKeys( query ):
-            logging.info('list_record(): invalid key in query!')
+            syslog( LOG_INFO, 'list_record(): invalid key in query!')
             return False
 
         if len(query) == 0:
@@ -81,12 +83,12 @@ class cfdns:
         payloadURL = self.baseURL + self.zoneID + '/dns_records?'
 
         try:
-            #logging.info('list_record(): {}'.format( query ) )
+            #syslog( LOG_INFO, 'list_record(): {}'.format( query ) )
             ret = requests.get( payloadURL, params=query, headers=self.authHdr ) 
         except requests.exceptions.RequestException as e:
             print(e, file=sys.stderr)
             return False
-        #logging.info('list_record(): success.')
+        #syslog( LOG_INFO, 'list_record(): success.')
         return ret
 
     # argument is a dictionary
@@ -101,13 +103,13 @@ class cfdns:
             return False
 
         try:
-            #logging.info('add_record(): {}'.format( newrec ) )
+            #syslog( LOG_INFO, 'add_record(): {}'.format( newrec ) )
             ret = requests.post( self.baseURL + self.zoneID + '/dns_records', headers=self.authHdr, data=json.dumps(newrec) )
         except requests.exceptions.RequestException as e:
             print(e, file=sys.stderr)
             return False
 
-        logging.info('add_record(): success.')
+        syslog( LOG_INFO, 'add_record(): success.')
         return ret
 
 
@@ -120,10 +122,10 @@ class cfdns:
         ret = self.list_record( query)
         if ret:
             if len(ret.json()['result']) == 1:
-                logging.info('get_recordID(): {}'.format(ret.json()['result'][0]['id']) )
+                syslog( LOG_INFO, 'get_recordID(): {}'.format(ret.json()['result'][0]['id']) )
                 return ret.json()['result'][0]['id']
         else:
-            logging.info('get_recordID(): failed.')
+            syslog( LOG_INFO, 'get_recordID(): failed.')
 
         return None
 
@@ -149,25 +151,25 @@ class cfdns:
         if not dnsid:
             return False
         try:
-            logging.info('update_record(): {}'.format( query ) )
+            syslog( LOG_INFO, 'update_record(): {}'.format( query ) )
             ret = requests.put( self.baseURL + self.zoneID + '/dns_records/' + dnsid, headers=self.authHdr, data=json.dumps(query) )
         except requests.exceptions.RequestException as e:
             print(e, file=sys.stderr)
             return False
-        logging.info('update_record(): success.')
+        syslog( LOG_INFO, 'update_record(): success.')
         return ret
 
     def del_record(self, dnsid ):
         if not self.chk_creds():
             return False
-        logging.info('del_record(): {}'.format( dnsid ) )
+        syslog( LOG_INFO, 'del_record(): {}'.format( dnsid ) )
         try:
             retreq = requests.delete( self.baseURL + self.zoneID + '/dns_records/' + dnsid, headers=self.authHdr)
         except requests.exceptions.RequestException as e:
             print(e, file=sys.stderr)
             return False
 
-        logging.info('del_record(): success.')
+        syslog( LOG_INFO, 'del_record(): success.')
         return retreq
 
 
