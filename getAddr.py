@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import socket, fcntl, struct, logging, sys
+import socket, fcntl, struct, sys
 from requests import get
 from re import match
 from random import randint
 from time import time
+from syslog import syslog, LOG_INFO
 
 def getAddrFromIface(ifname: str):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -19,13 +20,13 @@ def getAddrFromPub(url_list: list, sleep_Time: int = 5):
         # after 30 minutes of failing, handle it
         delta = nowtime - start_time
         if (delta > (60*30) ):
-            logging.info('CFDDNS: failed getAddrFromPub() for 30 minutes! Exiting...')
+            syslog( LOG_INFO, 'failed getAddrFromPub() for 30 minutes! Exiting...')
             sys.exit(1)
         ret = chkip( url_list )
         if ret != False:
             break
         sleep(sleep_time)
-    logging.info('getAddrFromPub(): took {0:.2f} ms.'.format( delta * 1000 ) )
+    syslog( LOG_INFO, 'getAddrFromPub(): took {0:.2f} ms.'.format( delta * 1000 ) )
     return ret
 
 def chkip(url_list: list):
